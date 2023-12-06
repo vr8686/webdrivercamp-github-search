@@ -11,9 +11,6 @@ from components.followers import Followers
 def before_feature(context, feature):
     context.BASE_URL = f'https://gh-users-search.netlify.app/'
     context.BASE_API = f'https://api.github.com/'
-    context.SEARCH_BUTTON_XPATH = f'//button[@type="submit"]'
-    context.USER_COMPONENT_NAME_XPATH = f'//header//h4'
-    context.USER_COMPONENT_FOLLOW_LINK_XPATH = f'//header//a[contains(@href, "github")]'
     context.browser = webdriver.Chrome()
     context.browser.maximize_window()
     context.wait = WebDriverWait(context.browser, 5)

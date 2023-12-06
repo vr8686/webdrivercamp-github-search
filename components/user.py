@@ -8,6 +8,8 @@ class User(Base):
     COMPANY_XPATH = f'//div[@class="links"]//p[1]'
     LOCATION_XPATH = f'//div[@class="links"]//p[2]'
     BLOG_XPATH = f'//div[@class="links"]//a[@href]'
+    USER_COMPONENT_XPATH = f'//article[@class="sc-dkrFOg bHWDWn"]'
+    USER_COMPONENT_FOLLOW_LINK_XPATH = f'//header//a[contains(@href, "github")]'
 
     def __init__(self, driver, wait):
         super().__init__(driver, wait)
@@ -32,6 +34,11 @@ class User(Base):
     def get_blog_ui(self):
         return self.get_text(self.BLOG_XPATH)
 
+    def get_attribute_text(self):
+        element = self.find_element(self.USER_COMPONENT_FOLLOW_LINK_XPATH)
+        element_url = element.get_attribute("href")
+        return element_url
+
     def get_data(self, data_type):
         method_mapping = {
             'name': self.get_name_ui,
@@ -52,3 +59,6 @@ class User(Base):
         else:
             # Handle the case where an invalid data type is provided
             raise ValueError(f"Invalid data type: {data_type}")
+
+    def check_user_present(self):
+        return self.find_element(self.USER_COMPONENT_XPATH)

@@ -10,6 +10,7 @@ from components.base import Base
 
 class Search(Base):
     SEARCH_BAR_XPATH = f'//input[@data-testid="search-bar"]'
+    SEARCH_BUTTON_XPATH = f'//button[@type="submit"]'
 
     def __init__(self, driver, wait):
         super().__init__(driver, wait)
@@ -30,3 +31,6 @@ class Search(Base):
     def search_for(self, profile_name: str):
         self.type(profile_name)
         self.press_return()
+
+    def click_button(self):
+        self.click(self.SEARCH_BUTTON_XPATH)

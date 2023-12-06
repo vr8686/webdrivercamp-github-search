@@ -6,6 +6,7 @@ class Summary(Base):
     FOLLOWERS_COUNT_XPATH = f'//div[contains(p, "followers")]//h3'
     FOLLOWING_COUNT_XPATH = f'//div[contains(p, "following")]//h3'
     GISTS_COUNT_XPATH = f'//div[contains(p, "gists")]//h3'
+    SUMMARY_COMPONENT_XPATH = f'//div[@class="sc-eDvSVe ghgOtH section-center"]'
 
     def __init__(self, driver, wait):
         super().__init__(driver, wait)
@@ -40,3 +41,6 @@ class Summary(Base):
         else:
             # Handle the case where an invalid data type is provided
             raise ValueError(f"Invalid data type: {data_type}")
+
+    def check_summary_present(self):
+        return self.find_element(self.SUMMARY_COMPONENT_XPATH)

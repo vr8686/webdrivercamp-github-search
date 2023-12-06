@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 
 
 class Base:
+    SEARCH_BAR_XPATH = f'//input[@data-testid="search-bar"]'
+
     def __init__(self, driver, wait):
         self.driver = driver
         self.wait = wait
@@ -26,7 +28,6 @@ class Base:
         element = self.driver.find_elements(*item_xpath)
         return element
 
-    def get_attribute_text(self, xpath: str):
-        element = self.find_element(xpath)
-        element_url = element.get_attribute("href")
-        return element_url
+    def refresh_page(self):
+        self.driver.refresh()
+        self.wait.until(ec.element_to_be_clickable((By.XPATH, self.SEARCH_BAR_XPATH)))

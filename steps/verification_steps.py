@@ -37,7 +37,8 @@ def compare_followers(dict1, dict2):
         print('Logins match in both dictionaries')
 
     # Compare values
-    values_diff = {key: (dict1[key], dict2[key]) for key in set(dict1.keys()) & set(dict2.keys()) if dict1[key] != dict2[key]}
+    values_diff = {key: (dict1[key], dict2[key]) for key in set(dict1.keys()) & set(dict2.keys()) if
+                   dict1[key] != dict2[key]}
     if values_diff:
         print("Different links:")
         for key, (value1, value2) in values_diff.items():
@@ -48,7 +49,7 @@ def compare_followers(dict1, dict2):
 
 @then('Verify "Follow" button contains {profile_name}')
 def step_impl(context, profile_name):
-    content = context.base.get_attribute_text(context.USER_COMPONENT_FOLLOW_LINK_XPATH)
+    content = context.user.get_attribute_text()
     verify_text_contained(content, profile_name)
 
 
@@ -72,15 +73,28 @@ def step_impl(context, component):
         verify_data(data_type, api_data, ui_data)
 
 
-@step("UI: number of followers is actual or max 100 is shown in Followers Component")
+@step("UI: number of followers is less than 100 in Followers Component")
 def step_impl(context):
     followers_ui = context.followers.get_followers()
-    if len(followers_ui) <= 100:
-        print(f'UI: number of followers shown: {len(followers_ui)} '
-              f'does not exceed 100')
-    else:
+    try:
+        assert len(followers_ui) <= 100
+        print(f'UI: Number of followers shown: {len(followers_ui)} does not exceed 100')
+    except AssertionError as e:
         print(f'UI MISMATCH: number of followers shown: {len(followers_ui)} '
               f'exceeds 100')
+        raise e
+
+
+@step("UI: number of followers is actual in Followers Component")
+def step_impl(context):
+    followers_ui = context.followers.get_followers()
+    followers_api = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
+    try:
+        assert followers_api == followers_api
+        print("UI: number of followers is actual in Followers Component")
+    except AssertionError as e:
+        print("UI: number of followers is WRONG in Followers Component")
+        raise e
 
 
 @step("Verify profile name and link match API request data")
@@ -88,5 +102,39 @@ def step_impl(context):
     ui_search_results = context.followers.collect_followers_data()
     api_search_results = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
 
+    #  Verify UI reflects correct API data
     print('Comparing UI name and link data for each follower with API data')
     compare_followers(api_search_results, ui_search_results)
+
+
+@step("Verify UI search results")
+def step_impl(context):
+    context.after_update = {}
+    for row in context.table:
+        data_type = row["Data Type"]
+        ui_data = context.summary.get_data(data_type)
+        context.after_update[data_type] = ui_data
+    print(f'UI collected data after API update:\n{context.after_update}')
+    try:
+        assert context.before_update == context.after_update
+        print('UI verification: data was successfully updated')
+    except AssertionError as e:
+        print(f'UI: Updated data does not match initial data')
+        print(f'Reverting Github changes.')
+        api_steps.delete_repo(context, context.name, context.login, context.password)
+        api_steps.unfollow_user(context, context.user, context.login, context.password)
+        api_steps.delete_gist(context, context.login, context.password)
+        raise e
+
+
+@then("Assert empty result returned")
+def step_impl(context):
+    # Empty result definition: no Summary, User and Followers components displayed
+    try:
+        assert context.summary.check_summary_present() is None
+        assert context.summary.check_user_present() is None
+        assert context.summary.check_followers_present() is None
+        print('UI search result is empty')
+    except AssertionError as e:
+        print('UI search result is NOT empty')
+        raise e

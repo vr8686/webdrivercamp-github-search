@@ -1,6 +1,7 @@
 import requests
 from behave import *
 from jsonpath_ng import parse
+from requests.auth import HTTPBasicAuth
 
 
 def send_get_request(url):
@@ -32,8 +33,6 @@ def get_api_data(url: str, jsonpath_str: str):
 
             result[str(path)] = match.value
 
-        # print(f"Extracted user data: {result}")
-
         return result
 
     except AssertionError as e:
@@ -59,13 +58,74 @@ def get_api_followers_data(url: str):
             url = [match.value for match in url_expr.find(item)][0]
             login_url_dict[login] = url
 
-        # print(f"Extracted user data: {result}")
-
         return login_url_dict
 
     except AssertionError as e:
         print(f'Assertion Error - {e}')
 
+
+def check_if_follows(name: str, login: str, password: str):
+    r = requests.get(f'https://api.github.com/user/following/{name}',
+                     timeout=5,
+                     auth=HTTPBasicAuth(login, password),
+                     headers={
+                         'Accept': 'application/vnd.github+json'
+                     },
+                     )
+    print(f"Response status code: {r.status_code}")
+
+    return r.status_code
+
+
+def create_repo(name: str, login: str, password: str) -> dict:
+    """
+    Create a new repository on GitHub using the GitHub API.
+
+    Returns:
+    - dict: A dictionary with the JSON response from the GitHub API after creating the repository.
+    """
+    print(f'Creating a repo {name} for user {login}')
+
+    r = requests.post('https://api.github.com/user/repos',
+                      timeout=5,
+                      auth=HTTPBasicAuth(login, password),
+                      json={
+                          "name": name,
+                          'Accept': 'application/vnd.github+json'
+                      },
+                      )
+
+    print(f"Response status code: {r.status_code}")
+
+    if r.status_code == 201:
+        print(f'Successfully created repo {name}')
+    else:
+        print(f'Failed to create repo {name}. Status code: {r.status_code}, Response: {r.text}')
+
+
+def get_created_repo(name: str, login: str, password: str):
+    """
+    Retrieve details of a created repository from the given GitHub API URL.
+
+    Raises:
+    - AssertionError: If any of the assertions fail.
+    """
+    r = requests.get(f'https://api.github.com/repos/{login}/{name}',
+                     timeout=5,
+                     auth=HTTPBasicAuth(login, password),
+                     json={'Accept': 'application/vnd.github+json'}
+                     )
+    print(f"Response status code: {r.status_code}")
+
+    repo = r.json()
+
+    # Asserting the repo was created with proper parameters
+    if r.status_code != 404:
+        try:
+            assert repo['name'] == name
+            assert repo['owner']['login'] == login
+        except AssertionError as e:
+            print(f'Assertion Error - {e}')
 
 
 @step("API: send GET request to {endpoint}")
@@ -77,3 +137,141 @@ def step_impl(context, endpoint):
         print(f"Response status code: {response_code}")
     except AssertionError as e:
         print(f'Error occurred, response code is not 200. \n{e}')
+
+
+@then("API: create a repo {name} using {login} and {password}")
+def step_impl(context, name, login, password):
+    #  Storing data into context to use to revert changes if further verification fails
+    context.name = name
+    context.login = login
+    context.password = password
+    create_repo(name, login, password)
+    get_created_repo(name, login, password)
+
+
+@then("API: Delete repo {name} using {login} and {password}")
+def delete_repo(context, name, login, password):
+    """
+        Delete a GitHub repository using the GitHub API.
+
+        Note:
+        - The function uses a DELETE request to delete the specified repository.
+        """
+    r = requests.delete(f'https://api.github.com/repos/{login}/{name}',
+                        timeout=5,
+                        auth=HTTPBasicAuth(login, password),
+                        json={
+                            "repo": name,
+                            "owner": login,
+                            'Accept': 'application/vnd.github+json'
+                        },
+                        )
+
+    if r.status_code == 204:
+        print(f'Successfully deleted repo {name}')
+    else:
+        print(f'Failed to delete repo {name}. Status code: {r.status_code}, Response: {r.text}')
+
+    get_created_repo(name, login, password)
+
+
+@step("API: follow {user} using {login} and {password}")
+def step_impl(context, user, login, password):
+    #  Storing data into context to use to revert changes if further verification fails
+    context.user = user
+
+    #  Checking if already following the user
+    if check_if_follows(user, login, password) == 204:
+        print(f'Already following {user}. Need to unfollow.')
+        unfollow_user(context, user, login, password)
+    print(f'API: following user {user}')
+
+    r = requests.put(f'https://api.github.com/user/following/{user}',
+                     timeout=5,
+                     auth=HTTPBasicAuth(login, password),
+                     json={
+                         "username": user,
+                         'Accept': 'application/vnd.github+json'
+                     },
+                     )
+
+    if r.status_code == 204:
+        print(f'Successfully followed user {user}')
+    else:
+        print(f'Failed to follow user {user}. Status code: {r.status_code}, Response: {r.text}')
+
+
+@step("API: unfollow {user} using {login} and {password}")
+def unfollow_user(context, user, login, password):
+    print(f'Unfollowing user {user}')
+    r = requests.delete(f'https://api.github.com/user/following/{user}',
+                        timeout=5,
+                        auth=HTTPBasicAuth(login, password),
+                        headers={
+                            'Accept': 'application/vnd.github+json'
+                        },
+                        )
+
+    if r.status_code == 204:
+        print(f'Successfully unfollowed user {user}')
+    else:
+        print(f'Failed to unfollow user {user}. Status code: {r.status_code}, Response: {r.text}')
+
+
+@step("API: create a gist using {login} and {password}")
+def step_impl(context, login, password):
+    print(f'Creating a gist for user {login}')
+
+    r = requests.post('https://api.github.com/gists',
+                      timeout=5,
+                      auth=HTTPBasicAuth(login, password),
+                      json={
+                          "description": 'test gist',
+                          "files": {
+                              'README.md': {
+                                  "content": 'Hello World'
+                              }
+                          },
+                          "public": True,
+                          'Accept': 'application/vnd.github+json'
+                      },
+                      )
+
+    print(f"Response status code: {r.status_code}")
+    context.gist_id = r.json()['id']
+
+
+@step("API: Delete created gist using {login} and {password}")
+def delete_gist(context, login, password):
+    print(f'Deleting a gist for user {login}')
+
+    r = requests.delete(f'https://api.github.com/gists/{context.gist_id}',
+                        timeout=5,
+                        auth=HTTPBasicAuth(login, password),
+                        json={
+                            "gist_id": context.gist_id,
+                            'Accept': 'application/vnd.github+json'
+                        },
+                        )
+
+    if r.status_code == 204:
+        print(f'Successfully deleted gist')
+    else:
+        print(f'Failed to deleted gist. Status code: {r.status_code}, Response: {r.text}')
+
+
+@when("API: assert {invalid_user} does not exist on GitHub {login} and {password}")
+def step_impl(context, invalid_user, login, password):
+    r = requests.get(f'https://api.github.com/users/{invalid_user}',
+                     timeout=5,
+                     auth=HTTPBasicAuth(login, password),
+                     headers={
+                         'Accept': 'application/vnd.github+json'
+                     },
+                     )
+    try:
+        assert r.status_code == 404
+        print(f'The user {invalid_user} does not exist.')
+    except AssertionError as e:
+        print(f'The user {invalid_user} exist on Github. Please choose another user.')
+        raise e

@@ -24,3 +24,8 @@ def clean_bio_string(input_string=None):
     return input_string
 
 
+def add_whitespace(profile_name, position):
+    if position == "before":
+        return profile_name + " "
+    elif position == "after":
+        return " " + profile_name
