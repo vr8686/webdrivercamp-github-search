@@ -8,7 +8,7 @@ class Summary(Base):
     GISTS_COUNT_XPATH = f'//div[contains(p, "gists")]//h3'
     SUMMARY_COMPONENT_XPATH = f'//div[@class="sc-eDvSVe ghgOtH section-center"]'
 
-    def __init__(self, driver, wait):
+    def __init__(self, driver: object, wait: object) -> object:
         super().__init__(driver, wait)
 
     def get_repos_ui(self):

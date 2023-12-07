@@ -1,6 +1,11 @@
 from behave import *
 
 import helpers
+from components.base import Base
+from components.followers import Followers
+from components.summary import Summary
+from components.user import User
+
 from steps import api_steps
 
 
@@ -49,33 +54,43 @@ def compare_followers(dict1, dict2):
 
 @then('Verify "Follow" button contains {profile_name}')
 def step_impl(context, profile_name):
-    content = context.user.get_attribute_text()
+    base = Base(context.browser, context.wait)
+    user = User(base.driver, base.wait)
+
+    content = user.get_attribute_text()
     verify_text_contained(content, profile_name)
 
 
 @then("Verify UI search results match API request data in {component} Component")
 def step_impl(context, component):
-    components = {"Summary": context.summary.get_data,
-                  "User": context.user.get_data
+    base = Base(context.browser, context.wait)
+    user = User(base.driver, base.wait)
+    summary = Summary(base.driver, base.wait)
+
+    components = {"Summary": summary.get_data,
+                  "User": user.get_data
                   }
     # Transforming data types in the table to JSON keys
-    transformed_data_types = [context.helpers.gherkin_to_json(row["Data Type"]) for row in context.table]
+    transformed_data_types = [helpers.gherkin_to_json(row["Data Type"]) for row in context.table]
 
     #  Creating JSONPath string to extract data based on Context Table from Scenario
-    jsonpath_str = context.helpers.create_jsonpath(transformed_data_types)
+    jsonpath_str = helpers.create_jsonpath(transformed_data_types)
 
     api_search_results = api_steps.get_api_data(f'{context.BASE_API}{context.endpoint}', jsonpath_str)
 
     for row in context.table:
         data_type = row["Data Type"]
         ui_data = components[component](data_type)
-        api_data = api_search_results[context.helpers.gherkin_to_json(data_type)]
+        api_data = api_search_results[helpers.gherkin_to_json(data_type)]
         verify_data(data_type, api_data, ui_data)
 
 
 @step("UI: number of followers is less than 100 in Followers Component")
 def step_impl(context):
-    followers_ui = context.followers.get_followers()
+    base = Base(context.browser, context.wait)
+    followers = Followers(base.driver, base.wait)
+
+    followers_ui = followers.get_followers()
     try:
         assert len(followers_ui) <= 100
         print(f'UI: Number of followers shown: {len(followers_ui)} does not exceed 100')
@@ -87,7 +102,6 @@ def step_impl(context):
 
 @step("UI: number of followers is actual in Followers Component")
 def step_impl(context):
-    followers_ui = context.followers.get_followers()
     followers_api = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
     try:
         assert followers_api == followers_api
@@ -99,7 +113,10 @@ def step_impl(context):
 
 @step("Verify profile name and link match API request data")
 def step_impl(context):
-    ui_search_results = context.followers.collect_followers_data()
+    base = Base(context.browser, context.wait)
+    followers = Followers(base.driver, base.wait)
+
+    ui_search_results = followers.collect_followers_data()
     api_search_results = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
 
     #  Verify UI reflects correct API data
@@ -109,10 +126,13 @@ def step_impl(context):
 
 @step("Verify UI search results")
 def step_impl(context):
+    base = Base(context.browser, context.wait)
+    summary = Summary(base.driver, base.wait)
+
     context.after_update = {}
     for row in context.table:
         data_type = row["Data Type"]
-        ui_data = context.summary.get_data(data_type)
+        ui_data = summary.get_data(data_type)
         context.after_update[data_type] = ui_data
     print(f'UI collected data after API update:\n{context.after_update}')
     try:
@@ -129,11 +149,16 @@ def step_impl(context):
 
 @then("Assert empty result returned")
 def step_impl(context):
+    base = Base(context.browser, context.wait)
+    summary = Summary(base.driver, base.wait)
+    user = User(base.driver, base.wait)
+    followers = Followers(base.driver, base.wait)
+
     # Empty result definition: no Summary, User and Followers components displayed
     try:
-        assert context.summary.check_summary_present() is None
-        assert context.summary.check_user_present() is None
-        assert context.summary.check_followers_present() is None
+        assert summary.check_summary_present() is None
+        assert user.check_user_present() is None
+        assert followers.check_followers_present() is None
         print('UI search result is empty')
     except AssertionError as e:
         print('UI search result is NOT empty')
