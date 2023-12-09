@@ -6,8 +6,8 @@ class Followers(Base):
     FOLLOWER_XPATH = f'//div[@class="followers"]//article'
     FOLLOWERS_COMPONENT_XPATH = f'//article[@class="sc-hLBbgP cYMlzc"]'
 
-    def __init__(self, driver, wait):
-        super().__init__(driver, wait)
+    def __init__(self, driver):
+        super().__init__(driver)
 
     def get_followers(self):
         item_xpath = (By.XPATH, self.FOLLOWER_XPATH)

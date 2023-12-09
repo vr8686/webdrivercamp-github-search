@@ -1,11 +1,9 @@
 from behave import *
 
 import helpers
-from components.base import Base
 from components.followers import Followers
 from components.summary import Summary
 from components.user import User
-
 from steps import api_steps
 
 
@@ -54,8 +52,7 @@ def compare_followers(dict1, dict2):
 
 @then('Verify "Follow" button contains {profile_name}')
 def step_impl(context, profile_name):
-    base = Base(context.browser, context.wait)
-    user = User(base.driver, base.wait)
+    user = User(context.browser)
 
     content = user.get_attribute_text()
     verify_text_contained(content, profile_name)
@@ -63,9 +60,8 @@ def step_impl(context, profile_name):
 
 @then("Verify UI search results match API request data in {component} Component")
 def step_impl(context, component):
-    base = Base(context.browser, context.wait)
-    user = User(base.driver, base.wait)
-    summary = Summary(base.driver, base.wait)
+    user = User(context.browser)
+    summary = Summary(context.browser)
 
     components = {"Summary": summary.get_data,
                   "User": user.get_data
@@ -87,8 +83,7 @@ def step_impl(context, component):
 
 @step("UI: number of followers is less than 100 in Followers Component")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    followers = Followers(base.driver, base.wait)
+    followers = Followers(context.browser)
 
     followers_ui = followers.get_followers()
     try:
@@ -113,8 +108,7 @@ def step_impl(context):
 
 @step("Verify profile name and link match API request data")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    followers = Followers(base.driver, base.wait)
+    followers = Followers(context.browser)
 
     ui_search_results = followers.collect_followers_data()
     api_search_results = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
@@ -126,8 +120,7 @@ def step_impl(context):
 
 @step("Verify UI search results")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    summary = Summary(base.driver, base.wait)
+    summary = Summary(context.browser)
 
     context.after_update = {}
     for row in context.table:
@@ -149,10 +142,9 @@ def step_impl(context):
 
 @then("Assert empty result returned")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    summary = Summary(base.driver, base.wait)
-    user = User(base.driver, base.wait)
-    followers = Followers(base.driver, base.wait)
+    summary = Summary(context.browser)
+    user = User(context.browser)
+    followers = Followers(context.browser)
 
     # Empty result definition: no Summary, User and Followers components displayed
     try:

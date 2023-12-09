@@ -12,8 +12,8 @@ class Search(Base):
     SEARCH_BAR_XPATH = f'//input[@data-testid="search-bar"]'
     SEARCH_BUTTON_XPATH = f'//button[@type="submit"]'
 
-    def __init__(self, driver, wait):
-        super().__init__(driver, wait)
+    def __init__(self, driver):
+        super().__init__(driver)
 
     def type(self, text: str):
         element = self.wait.until(ec.visibility_of_element_located((By.XPATH, self.SEARCH_BAR_XPATH)))

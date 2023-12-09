@@ -14,8 +14,7 @@ def navigate_to_url(context):
 
 @when("User enters {profile_name} in search field by {action}")
 def step_impl(context, profile_name, action):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    search = Search(context.browser)
     if action == "typing":
         search.type(profile_name)
     elif action == "pasting":
@@ -26,22 +25,20 @@ def step_impl(context, profile_name, action):
 
 @step("User presses Return/Enter")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    search = Search(context.browser)
     search.press_return()
 
 
 @step("User clicks Search button")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    search = Search(context.browser)
     search.click_button()
 
 
 @step('UI: search for {profile_name} with whitespace {position} it')
 def step_impl(context, profile_name, position):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    # base = Base(context.browser, context.wait)
+    search = Search(context.browser)
     profile_name_modified = helpers.add_whitespace(profile_name, position)
     print(f'Entering {profile_name_modified}')
     search.search_for(profile_name_modified)
@@ -49,15 +46,13 @@ def step_impl(context, profile_name, position):
 
 @step('UI: search for {profile_name}')
 def step_impl(context, profile_name):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    search = Search(context.browser)
     search.search_for(profile_name)
 
 
 @step("collect data from Summary Component and store in context variable")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    summary = Summary(base.driver, base.wait)
+    summary = Summary(context.browser)
 
     context.before_update = {}
     for row in context.table:
@@ -69,14 +64,14 @@ def step_impl(context):
 
 @then("UI: refresh page")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
+    base = Base(context.browser)
     base.refresh_page()
 
 
 @when("UI: enter whitespace into search field")
 def step_impl(context):
-    base = Base(context.browser, context.wait)
-    search = Search(base.driver, base.wait)
+    # base = Base(context.browser, context.wait)
+    search = Search(context.browser)
 
     profile_name = " "
     search.type(profile_name)

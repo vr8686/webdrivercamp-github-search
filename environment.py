@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 def before_feature(context, feature):
@@ -7,7 +6,6 @@ def before_feature(context, feature):
     context.BASE_API = f'https://api.github.com/'
     context.browser = webdriver.Chrome()
     context.browser.maximize_window()
-    context.wait = WebDriverWait(context.browser, 5)
 
 
 def after_step(context, step):
@@ -19,4 +17,4 @@ def after_scenario(context, scenario):
 
 
 def after_feature(context, feature):
-    context.browser.close()
+    context.browser.quit()

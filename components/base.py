@@ -1,16 +1,16 @@
 import time
 
-
-from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Base:
     SEARCH_BAR_XPATH = f'//input[@data-testid="search-bar"]'
 
-    def __init__(self, driver, wait):
+    def __init__(self, driver):
         self.driver = driver
-        self.wait = wait
+        self.wait = WebDriverWait(self.driver, 5)
 
     def click(self, xpath: str):
         self.wait.until(ec.element_to_be_clickable((By.XPATH, xpath))).click()

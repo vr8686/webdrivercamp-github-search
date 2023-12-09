@@ -11,8 +11,8 @@ class User(Base):
     USER_COMPONENT_XPATH = f'//article[@class="sc-dkrFOg bHWDWn"]'
     USER_COMPONENT_FOLLOW_LINK_XPATH = f'//header//a[contains(@href, "github")]'
 
-    def __init__(self, driver, wait):
-        super().__init__(driver, wait)
+    def __init__(self, driver):
+        super().__init__(driver)
 
     def get_name_ui(self):
         return self.get_text(self.NAME_XPATH)
