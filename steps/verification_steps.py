@@ -153,5 +153,5 @@ def step_impl(context):
         assert followers.check_followers_present() is None
         print('UI search result is empty')
     except AssertionError as e:
-        print('UI search result is NOT empty')
+        print('UI: search results are NOT empty')
         raise e
