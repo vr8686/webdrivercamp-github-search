@@ -109,15 +109,15 @@ Feature: GHUS-Search
       | trainingprofile | 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 | vr8686            | test-repo |
 
   Scenario Outline: Verify number of followers (UI) is updated after changes made on Github side
-#    When UI: search for <profile to follow>
-#    And collect data from Summary Component and store in context variable
-#      | Data Type |
-#      | Followers |
-#    And API: follow <profile to follow> using <profile name> and <password>
-#    Then UI: refresh page
-#    And Verify UI search results
-#      | Data Type |
-#      | Followers |
+    When UI: search for <profile to follow>
+    And collect data from Summary Component and store in context variable
+      | Data Type |
+      | Followers |
+    And API: follow <profile to follow> using <profile name> and <password>
+    Then UI: refresh page
+    And Verify UI search results
+      | Data Type |
+      | Followers |
     And API: Unfollow <profile to follow> using <profile name> and <password>
     Examples:
       | profile name    | password                                 | profile to follow |

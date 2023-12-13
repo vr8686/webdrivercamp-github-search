@@ -147,11 +147,6 @@ def step_impl(context):
     followers = Followers(context.browser)
 
     # Empty result definition: no Summary, User and Followers components displayed
-    try:
-        assert summary.check_summary_present() is None
-        assert user.check_user_present() is None
-        assert followers.check_followers_present() is None
-        print('UI search result is empty')
-    except AssertionError as e:
-        print('UI: search results are NOT empty')
-        raise e
+    assert (not summary.check_summary_present() and
+            not user.check_user_present() and
+            not followers.check_followers_present()), "UI search result is NOT empty"
