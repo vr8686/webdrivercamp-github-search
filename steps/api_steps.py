@@ -88,10 +88,12 @@ def create_repo(name: str, login: str, password: str) -> dict:
 
     r = requests.post('https://api.github.com/user/repos',
                       timeout=5,
-                      auth=HTTPBasicAuth(login, password),
+                      headers={
+                          "Accept": "application/vnd.github+json",
+                          "Authorization": "token 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"
+                      },
                       json={
-                          "name": name,
-                          'Accept': 'application/vnd.github+json'
+                          "name": name
                       },
                       )
 

@@ -106,7 +106,7 @@ Feature: GHUS-Search
     And API: Delete created gist using <profile name> and <password>
     Examples:
       | profile name    | password                                 | profile to follow | repo name |
-      | trainingprofile | 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 | vr8686            | test-repo |
+      | trainingprofile | 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 | vr8686            | test-repo |
 
   Scenario Outline: Verify number of followers (UI) is updated after changes made on Github side
     When UI: search for <profile to follow>
@@ -121,7 +121,7 @@ Feature: GHUS-Search
     And API: Unfollow <profile to follow> using <profile name> and <password>
     Examples:
       | profile name    | password                                 | profile to follow |
-      | trainingprofile | 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 | vr8686            |
+      | trainingprofile | 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 | vr8686            |
 
   Scenario Outline: Verify not valid username populates an empty result
     When API: assert <invalid user> does not exist on GitHub <profile name> and <password>
@@ -129,7 +129,7 @@ Feature: GHUS-Search
     Then Assert empty result returned
     Examples:
       | invalid user   | profile name    | password                                 |
-      | fdjfkjsflsglsg | trainingprofile | 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 |
+      | fdjfkjsflsglsg | trainingprofile | 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 |
 
   Scenario: Verify an empty result is returned when entering no data
     When User presses Return/Enter
