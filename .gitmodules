@@ -1,0 +1,3 @@
+[submodule "/Users/vladimirrublev/Documents/webdrivercamp/webdrivercamp-github-search/base"]
+	path = /Users/vladimirrublev/Documents/webdrivercamp/webdrivercamp-github-search/base
+	url = git@github.com:vr8686/webdrivercamp-github-base.git
