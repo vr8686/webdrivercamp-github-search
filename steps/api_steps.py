@@ -134,7 +134,7 @@ def get_created_repo(name: str, login: str, password: str):
 def step_impl(context, endpoint):
     context.endpoint = endpoint
     try:
-        response_code = send_get_request(f'{context.BASE_API}{endpoint}')
+        response_code = send_get_request(f'{context.BASE_API}/{endpoint}')
         assert response_code == 200
         print(f"Response status code: {response_code}")
     except AssertionError as e:
