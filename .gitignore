@@ -10,8 +10,3 @@ __pycache__/
 # exercise runners
 *main.py
 /venv/
-
-# Ignore payload.json
-.base/components/payload.json
-./base/components/payload.json
-
