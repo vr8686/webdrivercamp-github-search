@@ -11,4 +11,5 @@ __pycache__/
 *main.py
 /venv/
 
-"Screenshot 2023-11-29 at 7.38.24 PM"
+# Ignore payload.json
+webdriver-github-search/base/components/payload.json
