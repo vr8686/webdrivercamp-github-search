@@ -12,4 +12,6 @@ __pycache__/
 /venv/
 
 # Ignore payload.json
-webdriver-github-search/base/components/payload.json
+.base/components/payload.json
+./base/components/payload.json
+
