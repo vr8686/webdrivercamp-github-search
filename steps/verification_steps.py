@@ -72,7 +72,7 @@ def step_impl(context, component):
     #  Creating JSONPath string to extract data based on Context Table from Scenario
     jsonpath_str = helpers.create_jsonpath(transformed_data_types)
 
-    api_search_results = api_steps.get_api_data(f'{context.BASE_API}{context.endpoint}', jsonpath_str)
+    api_search_results = api_steps.get_api_data(f'{context.BASE_API}/{context.endpoint}', jsonpath_str)
 
     for row in context.table:
         data_type = row["Data Type"]
@@ -97,7 +97,7 @@ def step_impl(context):
 
 @step("UI: number of followers is actual in Followers Component")
 def step_impl(context):
-    followers_api = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
+    followers_api = api_steps.get_api_followers_data(f'{context.BASE_API}/{context.endpoint}')
     try:
         assert followers_api == followers_api
         print("UI: number of followers is actual in Followers Component")
@@ -111,7 +111,7 @@ def step_impl(context):
     followers = Followers(context.browser)
 
     ui_search_results = followers.collect_followers_data()
-    api_search_results = api_steps.get_api_followers_data(f'{context.BASE_API}{context.endpoint}')
+    api_search_results = api_steps.get_api_followers_data(f'{context.BASE_API}/{context.endpoint}')
 
     #  Verify UI reflects correct API data
     print('Comparing UI name and link data for each follower with API data')
